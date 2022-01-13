@@ -194,6 +194,9 @@ public class JustEnoughDiscordIntegrationMod {
         if (advancement.getDisplay() == null) {
             return;
         }
+        if (advancement.getDisplay().shouldAnnounceChat() == false) {
+            return;
+        }
         final String playerName = strip(event.getPlayer().getDisplayName().getString());
         final String advancementName = strip(advancement.getDisplay().getTitle().getString());
         final String advancementDesc = strip(advancement.getDisplay().getDescription().getString());

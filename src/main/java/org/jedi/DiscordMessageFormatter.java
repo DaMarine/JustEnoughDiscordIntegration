@@ -22,7 +22,7 @@ public final class DiscordMessageFormatter {
     }
 
     public IFormattableTextComponent format(Message message) {
-        final StringTextComponent header = new StringTextComponent("<@");
+        final StringTextComponent header = new StringTextComponent("<");
         header.append(this.formatAuthorName(message));
         header.append("> ");
 
