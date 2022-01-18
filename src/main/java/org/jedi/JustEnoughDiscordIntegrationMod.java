@@ -39,7 +39,6 @@ import org.javacord.api.event.message.MessageCreateEvent;
 import org.javacord.api.listener.channel.server.text.WebhooksUpdateListener;
 import org.javacord.api.listener.message.MessageCreateListener;
 import org.apache.commons.lang3.tuple.Pair;
-
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Arrays;
@@ -173,7 +172,7 @@ public class JustEnoughDiscordIntegrationMod {
     @SubscribeEvent
     public void death(LivingDeathEvent event) {
         final LivingEntity entity = event.getEntityLiving();
-        if (entity.getType() == EntityType.PLAYER || entity.hasCustomName()) {
+        if (entity.getType() == EntityType.PLAYER) {
             sendMessage(strip(event.getSource().getLocalizedDeathMessage(entity).getString()));
         }
     }
@@ -229,8 +228,10 @@ public class JustEnoughDiscordIntegrationMod {
             if (!message.getAuthor().isRegularUser()) return;
             if (!readChannels.get().contains(event.getChannel().getId())) return;
 
-            IFormattableTextComponent chatMessage = messageFormatter.format(message);
-            ServerLifecycleHooks.getCurrentServer().getPlayerList().broadcastMessage(chatMessage, ChatType.CHAT, Util.NIL_UUID);
+            if (!isCommand(message)) {
+                IFormattableTextComponent chatMessage = messageFormatter.format(message);
+                ServerLifecycleHooks.getCurrentServer().getPlayerList().broadcastMessage(chatMessage, ChatType.CHAT, Util.NIL_UUID);
+            }
         }
     }
 
@@ -255,5 +256,29 @@ public class JustEnoughDiscordIntegrationMod {
 
     private static String strip(final String original) {
         return TextFormatting.stripFormatting(original);
+    }
+
+    private static boolean isCommand(Message message) {
+        String messageContent = message.getContent().toLowerCase();
+        switch (messageContent) {
+            case "playerlist":
+                String[] playerNameArray = ServerLifecycleHooks.getCurrentServer().getPlayerNames();
+                Arrays.sort(playerNameArray);
+                String playerNames = String.join(", ", playerNameArray);
+                sendMessage(String.format("**Online players (" + playerNameArray.length + "): **" + playerNames));
+                break;
+            case "playerlust":
+                sendMessage(String.format("**Online players (1): thicc steve**"));
+                break;
+            case "playerlit":
+                sendMessage(String.format("**Online players (1): MCfireplayer**"));
+                break;
+            case "playerlost":
+                sendMessage(String.format("**Online players (1): " + message.getAuthor().getName().toString() + "**"));
+                break;
+            default:
+                return false;
+        }
+        return true;
     }
 }
